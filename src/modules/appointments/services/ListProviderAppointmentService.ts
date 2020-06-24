@@ -1,10 +1,8 @@
-import User from '@modules/users/infra/typeorm/entities/User';
-import AppError from '@shared/errors/AppError';
 import IAppointmentRepository from '../repositories/IAppointmentsRepository';
 import RedisCacheProvider from '@shared/container/provider/CacheProvider/models/ICacheProvider';
 import Appointment from '../infra/typeorm/entities/Appointment';
 import { injectable, inject} from 'tsyringe';
-import {getHours, isAfter} from 'date-fns';
+import { classToClass } from 'class-transformer';
 
 interface IRequest {
   provider_id: string;
@@ -38,7 +36,7 @@ class ListProviderAppointmentService {
         day,
       });
 
-      await this.cacheProvider.save(cachedKey, appointments)
+      await this.cacheProvider.save(cachedKey, classToClass(appointments))
 
     }
 
