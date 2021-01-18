@@ -1,10 +1,9 @@
-import User from '../infra/typeorm/entities/User';
 import AppError from '@shared/errors/AppError';
 import RedisCacheProvider from '@shared/container/provider/CacheProvider/models/ICacheProvider';
+import { injectable, inject } from 'tsyringe';
 import IUserRepository from '../repositories/IUserRepository';
-import { injectable, inject} from 'tsyringe';
+import User from '../infra/typeorm/entities/User';
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
-
 
 interface Request {
   name: string;
@@ -14,20 +13,18 @@ interface Request {
 
 @injectable()
 class CreateUserService {
-  constructor (
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: IUserRepository,
 
-  @inject('UsersRepository')
-  private usersRepository: IUserRepository,
+    @inject('HashProvider')
+    private hashProvider: IHashProvider,
 
-  @inject('HashProvider')
-  private hashProvider: IHashProvider,
-
-  @inject('CacheProvider')
-  private cacheProvider: RedisCacheProvider,
-  ){};
+    @inject('CacheProvider')
+    private cacheProvider: RedisCacheProvider,
+  ) {}
 
   public async execute({ name, email, password }: Request): Promise<User> {
-
     const checkUserExists = await this.usersRepository.findByEmail(email);
 
     if (checkUserExists) {
@@ -42,7 +39,7 @@ class CreateUserService {
       password: hashedPassword,
     });
 
-    await this.cacheProvider.invalidatePrefix('providers-list')
+    await this.cacheProvider.invalidatePrefix('providers-list');
 
     return user;
   }

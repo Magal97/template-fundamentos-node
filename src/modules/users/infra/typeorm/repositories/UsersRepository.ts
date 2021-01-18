@@ -53,14 +53,14 @@ class UserRepository implements IUserRepository{
       password,
     });
 
-    this.ormRepository.save(user);
+    await this.ormRepository.save(user);
 
     return user;
 
   }
 
   public async save(user: User): Promise<User>{
-    return this.ormRepository.save(user);
+    return await this.ormRepository.save(user);
   }
 }
 
